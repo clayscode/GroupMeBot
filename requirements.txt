@@ -1,3 +1,5 @@
+appdirs==1.4.3
+packaging==16.8
+pyparsing==2.2.0
 requests==2.13.0
-setuptools==20.7.0
-pip==8.1.1
+six==1.10.0
