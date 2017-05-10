@@ -3,16 +3,18 @@ import sys
 import json
 from .const import CONFIG_FILE, EXCEPTIONS
 
-class SettingsException(Exception):
-    """Custom exception SettingsException"""        
 
-class Settings:
+class SettingsException(Exception):
+    """Custom exception SettingsException"""
+
+
+class Settings(object):
     """Settings to encapsulate connection values"""
 
     def __init__(self, file=None, **data):
         # Values needed to operate
         self.essential = {
-            "accessToken" : None
+            "accessToken": None
         }
 
         # Non essentials. TODO: Fill these in
@@ -28,14 +30,15 @@ class Settings:
 
     @property
     def valid(self):
-        return len([0 for x in self.essential.values() if x == None]) == 0
+        return len([0 for x in self.essential.values() if x is None]) == 0
 
     @property
     def accessToken(self):
         return self.essential["accessToken"]
 
     def _generate_json(self):
-        merged = {**self.essential, **self.properties}
+        merged = self.essential.copy()
+        merged.update(self.properties)
         return json.dumps(merged)
 
     def _load_essentials(self, data):
@@ -67,7 +70,7 @@ class Settings:
 
     def save_config(self, file=CONFIG_FILE):
         try:
-            with open(file,'w+') as f:
+            with open(file, 'w+') as f:
                 f.write(self._generate_json())
-        except:
+        except IOError as e:
             raise SettingsException(EXCEPTIONS.BAD_CONFIG_SAVE)

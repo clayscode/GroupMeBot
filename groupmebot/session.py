@@ -1,13 +1,18 @@
 import time
+import pprint
 import requests
+from .utils import *
 from .const import EXCEPTIONS, JSON, ENDPOINTS, SUBSCRIPTIONS
+
 
 class SessionException(Exception):
     """ Something went wrong with the session """
 
+
 class Session(object):
 
     """Takes in settings"""
+
     def __init__(self, settings, connection):
         self._connection = connection
         self._settings = settings
@@ -15,7 +20,7 @@ class Session(object):
         if not settings.valid:
             raise SessionException(EXCEPTIONS.BAD_SESSION_SETTINGS)
 
-    @property 
+    @property
     def connection(self):
         return self._connection
 
@@ -25,31 +30,29 @@ class Session(object):
             instance["ext"] = {
                 "access_token": self._settings.accessToken,
                 "timestamp": time.time()
-              }
+            }
 
-        print(payload) # Swap to logging
+        logging.debug("Outbound: \n" + pprint.pformat(payload))
         return payload
 
-
-    #TODO: Add error handling
-    #TODO: Add other endpoints
+    # TODO: Add error handling
     def establishHandshake(self):
         # Get initial client ID
         r = self.connection.post(ENDPOINTS.FAYE, json=[JSON.HANDSHAKE])
         data = r.json().pop()
-        print(data) # Swap to logging
+        logging.debug("Handshake: \n" + pprint.pformat(r.json()))
         self._clientId = data['clientId']
 
     def poll(self):
         payload = JSON.POLL
         payload["clientId"] = self._clientId
         r = self.connection.post(ENDPOINTS.FAYE, json=[payload])
-        print(r.json()) # Swap to logging
+        logging.debug("Poll: \n" + pprint.pformat(r.json()))
         return r.status_code == requests.codes.ok
 
     def _authenticate(F):
         def wrapper(self, *args):
-            if self._clientId == None:
+            if self._clientId is None:
                 raise SessionException(EXCEPTIONS.CONNECTIONLESS)
 
             return F(self, *args)
@@ -61,7 +64,7 @@ class Session(object):
         payload = JSON.SUBSCRIBE_USER
         payload["subscription"] = SUBSCRIPTIONS.USER.format(userId)
         r = self.connection.post(ENDPOINTS.FAYE, json=self._sign([payload]))
-        print(r.json()) # Swap to logging
+        logging.debug("Subscribe User: \n" + pprint.pformat(r.json()))
         return r.status_code == requests.codes.ok
 
     @_authenticate
@@ -69,5 +72,5 @@ class Session(object):
         payload = JSON.SUBSCRIBE_GROUP
         payload["subscription"] = SUBSCRIPTIONS.GROUP.format(groupId)
         r = self.connection.post(ENDPOINTS.FAYE, json=self._sign([payload]))
-        print(r.json()) # Swap to logging
+        logging.debug("Subscribe Group: \n" + pprint.pformat(r.json()))
         return r.status_code == requests.codes.ok
