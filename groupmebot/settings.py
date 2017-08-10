@@ -1,6 +1,4 @@
 import json
-import sys
-import json
 from .const import CONFIG_FILE, EXCEPTIONS
 
 
@@ -65,12 +63,12 @@ class Settings(object):
             self._load_essentials(data)
             self._load_properties(data)
 
-        except IOError as e:
+        except IOError:
             raise SettingsException(EXCEPTIONS.BAD_CONFIG)
 
     def save_config(self, file=CONFIG_FILE):
         try:
             with open(file, 'w+') as f:
                 f.write(self._generate_json())
-        except IOError as e:
+        except IOError:
             raise SettingsException(EXCEPTIONS.BAD_CONFIG_SAVE)

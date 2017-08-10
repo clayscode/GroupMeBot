@@ -3,8 +3,8 @@ CONFIG_FILE = "config.json"
 
 
 class ENDPOINTS(object):
+    API = "https://api.groupme.com/v3"
     FAYE = "https://push.groupme.com/faye"
-    BOT_POST = "https://api.groupme.com/v3/bots/post"
 
 
 class CHANNELS(object):
@@ -23,6 +23,10 @@ class EXCEPTIONS(object):
 class SUBSCRIPTIONS(object):
     USER = "/user/{}"
     GROUP = "/group/{}"
+
+
+class TARGETS(object):
+    GROUP = "/groups/{}"
 
 
 class JSON(object):
@@ -48,6 +52,8 @@ class JSON(object):
         "connectionType": "long-polling",
         "id": "6"
     }
+
+    SHOW = {}
 
     def __getattr__(self, name):
         result = object.__getattribute__(self, name)

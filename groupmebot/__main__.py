@@ -10,6 +10,7 @@ import sys
 
 commands = {
     "connect": (lambda app: app.establishHandshake()),
+    "getgroup": (lambda app: app.getGroup(input("Provide groupId: "))),
     "group": (lambda app: app.subscribeGroup(input("Provide groupId: "))),
     "user": (lambda app: app.subscribeUser(input("Provide userId: "))),
     "poll": (lambda app: app.poll()),
@@ -57,8 +58,7 @@ def main():
     # Poor man's Terminal
     key = ""
     # Python 2 compat
-    if raw_input:
-        input = raw_input
+    input = raw_input or input
     while key != "exit":
         key = input("Please provide command: ")
         if key in commands:
