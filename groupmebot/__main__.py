@@ -14,8 +14,8 @@ commands = {
     "group": (lambda app: app.subscribeGroup(input("Provide groupId: "))),
     "user": (lambda app: app.subscribeUser(input("Provide userId: "))),
     "poll": (lambda app: app.poll()),
-    "help": (lambda _: print(commands.keys()))
 }
+commands.update(dict.fromkeys(["help", "?", "h"], (lambda _: print(commands.keys()))))
 
 
 def buildSettings():
@@ -26,11 +26,9 @@ def buildSettings():
     args = vars(parser.parse_args())
 
     try:
-        sessionSettings = Settings(file="config.json", **args)
+        return Settings(file="config.json", **args)
     except Exception:
         raise SessionException("Running as module. Ensure config")
-
-    return sessionSettings
 
 
 def main():
@@ -46,7 +44,7 @@ def main():
     app = Session(sessionSettings, connection)
 
     # In here for scope
-    def gracefulExit(signum, frame):
+    def gracefulExit(signum=None, frame=None):
         connection.close()
         # Do logging instead here
         logging.info("Exiting...")
@@ -58,12 +56,18 @@ def main():
     # Poor man's Terminal
     key = ""
     # Python 2 compat
-    input = raw_input or input
-    while key != "exit":
-        key = input("Please provide command: ")
-        if key in commands:
-            commands[key](app)
-
+    try:
+        get_input = raw_input
+    except NameError:
+        get_input = input
+    try:
+        while key not in ["exit", "quit"]:
+            key = get_input("Please provide command: ")
+            if key in commands:
+                commands[key](app)
+    except EOFError:
+        pass
+    gracefulExit()
 
 if __name__ == "__main__":
     main()
