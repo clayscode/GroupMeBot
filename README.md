@@ -1,5 +1,5 @@
-# GroupMeGrammarBot - targeting Python 3.5.2
-A bot that automatically corrects spelling and grammar in GroupMe using Google search suggestions 
+# GroupMeBot - targeting Python 3.5.2
+A generic GroupMe Bot. 
 
 # Requirements
 You need to install python-json, python-selenium, and the PhantomJS driver 
